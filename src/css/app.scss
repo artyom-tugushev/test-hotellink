@@ -1,1 +1,34 @@
-// app global css in SCSS form
+* {
+  box-sizing: border-box;
+  line-height: 1.5;
+}
+.container {
+  width: 100%;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 16px;
+}
+
+.font-400 {
+  font-family: "Manrope", sans-serif;
+  font-weight: 400;
+}
+.font-600 {
+  font-family: "Manrope", sans-serif;
+  font-weight: 600;
+}
+.font-700 {
+  font-family: "Manrope", sans-serif;
+  font-weight: 800;
+}
+
+.q-btn {
+  padding: 4px;
+}
+.q-btn::before {
+  box-shadow: none;
+}
+.q-btn--rectangle {
+  border-radius: 0;
+}
