@@ -35,15 +35,20 @@ const handleSelection = (session) => {
     selectedSessions.value = selectedSessions.value.slice(-1);
   }
 
-  // проверяем чтобы сеансы были рядом (не больше 30 минут)
+  // проверяем, чтобы сеансы были рядом (не больше 30 минут)
   if (selectedSessions.value.length > 1) {
     const [firstSession, secondSession] = selectedSessions.value;
 
+    const firstStart = dayjs(firstSession.startTime);
     const firstEnd = dayjs(firstSession.endTime);
     const secondStart = dayjs(secondSession.startTime);
-    const timeDifference = secondStart.diff(firstEnd, "minute");
+    const secondEnd = dayjs(secondSession.endTime);
 
-    if (-30 > timeDifference > 30) {
+    const timeDiff1 = secondStart.diff(firstEnd, "minute");
+    const timeDiff2 = firstStart.diff(secondEnd, "minute");
+
+    // если сеансы НЕ рядом
+    if (Math.abs(timeDiff1) > 30 && Math.abs(timeDiff2) > 30) {
       selectedSessions.value = [];
       selectedSessions.value.push(session);
     }
@@ -97,6 +102,7 @@ onMounted(() => fetchData());
         <q-btn
           no-caps
           :disable="!item.isAvailable"
+          :ripple="false"
           @click="handleSelection(item)"
           :class="getSessionClasses(item)"
           class="full-width"
@@ -135,7 +141,6 @@ onMounted(() => fetchData());
   border: 2px solid $primary;
   background-color: white !important;
 }
-
 .session-content {
   .name {
     font-size: 12px;
