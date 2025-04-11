@@ -19,7 +19,6 @@ const handleSelection = (session) => {
 
   // кейс с длинным сеансом
   if (session.type === "long") selectedSessions.value = [];
-
   if (
     selectedSessions.value.length &&
     selectedSessions.value[0].type === "long"
@@ -35,22 +34,39 @@ const handleSelection = (session) => {
   if (selectedSessions.value.length > 2) {
     selectedSessions.value = selectedSessions.value.slice(-1);
   }
+
+  // проверяем чтобы сеансы были рядом (не больше 30 минут)
+  if (selectedSessions.value.length > 1) {
+    const [firstSession, secondSession] = selectedSessions.value;
+
+    const firstEnd = dayjs(firstSession.endTime);
+    const secondStart = dayjs(secondSession.startTime);
+    const timeDifference = secondStart.diff(firstEnd, "minute");
+
+    if (-30 > timeDifference > 30) {
+      selectedSessions.value = [];
+      selectedSessions.value.push(session);
+    }
+  }
 };
 
 const getSessionClasses = (session) => {
   return {
     active: selectedSessions.value.includes(session),
-    overnight: isSessionOvernight(session),
-    "full-width": session.type === "long",
+    "text-grey": !session.isAvailable,
     "bg-light-grey":
       session.isAvailable || selectedSessions.value.includes(session),
-    "border-light": !session.isAvailable,
-    "text-grey": !session.isAvailable,
   };
 };
 
 const isSessionOvernight = (session) => {
   return !dayjs(session.startTime).isSame(dayjs(session.endTime), "day");
+};
+
+const getColumnClass = (session) => {
+  if (session.type === "long") return "col-12";
+  else if (isSessionOvernight(session)) return "col-5";
+  else return "col";
 };
 
 onMounted(() => fetchData());
@@ -61,75 +77,68 @@ onMounted(() => fetchData());
     v-if="sessions"
     class="sessions-wrap"
   >
-    <div class="row-wrap title-wrap">
+    <div class="row title-wrap q-col-gutter-sm">
       <div
-        v-for="title in ['Сеанс 1', 'Сеанс 2', 'Сеанс 3']"
-        class="session-card col-4"
+        v-for="(title, index) in ['Сеанс 1', 'Сеанс 2', 'Сеанс 3']"
+        class="col"
+        :class="{ 'col-5': index === 2 }"
       >
         <div class="text-center font-600">{{ title }}</div>
       </div>
     </div>
 
-    <div class="row-wrap">
-      <q-btn
-        no-caps
-        v-for="item in sessions"
-        :disable="!item.isAvailable"
+    <div class="row q-col-gutter-sm">
+      <div
+        v-for="(item, index) in sessions"
         :key="item.id"
-        @click="handleSelection(item)"
-        :class="getSessionClasses(item)"
-        class="session-card session cursor-pointer"
+        :class="getColumnClass(item)"
+        class="session-wrap"
       >
-        <div
-          class="session-content"
-          :class="{ 'text-grey': !item.isAvailable }"
+        <q-btn
+          no-caps
+          :disable="!item.isAvailable"
+          @click="handleSelection(item)"
+          :class="getSessionClasses(item)"
+          class="full-width"
         >
-          <!-- <div>{{ isSessionOvernight(item) }}</div> -->
-          <div class="time font-700">
-            <span v-if="item.type === 'long'">Длительный сеанс</span>
-            {{ dayjs(item.startTime).format("HH:mm") }} —
-            {{ dayjs(item.endTime).format("HH:mm") }}
+          <div
+            class="session-content"
+            :class="{ 'text-grey': !item.isAvailable }"
+          >
+            <div class="time font-700">
+              <span v-if="item.type === 'long'">Длительный сеанс</span>
+              {{ dayjs(item.startTime).format("HH:mm") }} —
+              {{ dayjs(item.endTime).format("HH:mm") }}
+            </div>
+            <div class="name font-600 text-grey">
+              {{ item.name }}
+              <span v-if="item.isAvailable"> — {{ item.price }}₽</span>
+            </div>
           </div>
-          <div class="name font-600 text-grey">
-            {{ item.name }}
-            <span v-if="item.isAvailable"> — {{ item.price }}₽</span>
-          </div>
-        </div>
-      </q-btn>
+        </q-btn>
+      </div>
     </div>
-
-    {{ selectedSessions }}
   </div>
 </template>
 
 <style scoped lang="scss">
-.row-wrap {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
 .title-wrap {
-  margin-bottom: 8px;
-  height: 32px;
+  margin-bottom: 16px;
 }
-.session-card {
-  width: calc((100% - (8px * 2)) / 3);
+.session-wrap {
+  min-width: 120px;
 }
-
-.session {
+.q-btn {
   border: 2px solid $light;
 }
 .active {
-  border: 2px solid black;
+  border: 2px solid $primary;
+  background-color: white !important;
 }
 
 .session-content {
   .name {
     font-size: 12px;
   }
-}
-
-.border-light {
-  border: 2px solid $light;
 }
 </style>
