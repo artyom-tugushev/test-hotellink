@@ -35,3 +35,12 @@
 .q-btn--rectangle {
   border-radius: 0;
 }
+
+.dp__theme_light {
+  --dp-primary-color: #1f3c4a !important;
+  --dp-input-padding: 6px 12px !important;
+  --dp-input-icon-padding: 12px !important;
+}
+.dp__input_icon {
+  display: none !important;
+}

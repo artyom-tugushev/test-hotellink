@@ -2,6 +2,7 @@
 import { ref, onMounted } from "vue";
 import sessionsList from "src/data/sessions";
 import dayjs from "dayjs";
+import DatePicker from "./DatePicker.vue";
 
 const sessions = ref(null);
 
@@ -78,6 +79,7 @@ onMounted(() => fetchData());
 </script>
 
 <template>
+  <DatePicker></DatePicker>
   <div
     v-if="sessions"
     class="sessions-wrap"
