@@ -35,8 +35,39 @@
 .q-btn--rectangle {
   border-radius: 0;
 }
+.q-field__control,
+.q-field__native,
+.q-field__append {
+  min-height: 40px !important;
+  height: 40px !important;
+}
+.q-field__control::before {
+  border: 2px solid $light !important;
+  border-radius: 0;
+}
+.q-field__control::after {
+  border-radius: 0 !important;
+}
+.q-menu {
+  border: 2px solid $light !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
 
+.dp__input,
+.dp__menu {
+  border: 2px solid var(--dp-border-color) !important;
+}
+.dp__calendar_header_separator {
+  height: 2px !important;
+}
+.dp__arrow_top {
+  border-inline-end: 2px solid var(--dp-border-color) !important;
+  border-top: 2px solid var(--dp-border-color) !important;
+}
 .dp__theme_light {
+  --dp-border-radius: 0 !important;
+  --dp-border-color: #ededed !important;
   --dp-primary-color: #1f3c4a !important;
   --dp-input-padding: 6px 12px !important;
   --dp-input-icon-padding: 12px !important;

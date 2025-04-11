@@ -1,10 +1,15 @@
 <script setup>
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 
-const date = ref(null);
-onMounted(() => (date.value = new Date()));
+const emits = defineEmits(["dataUpdated"]);
+const date = ref(new Date());
+
+const formatDate = (date) => {
+  const options = { day: "numeric", month: "short", year: "numeric" };
+  return date.toLocaleDateString("ru-RU", options).replace(/(\.|\sг)/g, "");
+};
 </script>
 
 <template>
@@ -14,7 +19,9 @@ onMounted(() => (date.value = new Date()));
     :enable-time-picker="false"
     :clearable="false"
     auto-apply
+    :format="formatDate"
     v-model="date"
+    @update:model-value="$emit('dataUpdated', date)"
   >
   </VueDatePicker>
 </template>

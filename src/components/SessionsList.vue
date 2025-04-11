@@ -5,8 +5,13 @@ import dayjs from "dayjs";
 import DatePicker from "./DatePicker.vue";
 
 const sessions = ref(null);
+const selectRef = ref(null);
+const guestCount = ref("1 человек");
+const options = ["1 человек", "2 человека", "3 человека", "4 человека"];
 
-const fetchData = async () => {
+const fetchData = async (newDate) => {
+  console.log("date changed:", newDate ?? new Date());
+
   // тут бы получил данные с бэка
   try {
     sessions.value = sessionsList;
@@ -79,7 +84,23 @@ onMounted(() => fetchData());
 </script>
 
 <template>
-  <DatePicker></DatePicker>
+  <div class="flex q-gutter-sm q-mb-lg">
+    <q-select
+      outlined
+      v-model="guestCount"
+      :options="options"
+      class="select"
+      ref="selectRef"
+      @update:model-value="selectRef.blur()"
+      dropdown-icon="keyboard_arrow_down"
+    />
+
+    <DatePicker
+      class="date-picker"
+      @data-updated="(newDate) => fetchData(newDate)"
+    />
+  </div>
+
   <div
     v-if="sessions"
     class="sessions-wrap"
@@ -96,7 +117,7 @@ onMounted(() => fetchData());
 
     <div class="row q-col-gutter-sm">
       <div
-        v-for="(item, index) in sessions"
+        v-for="item in sessions"
         :key="item.id"
         :class="getColumnClass(item)"
         class="session-wrap"
@@ -147,5 +168,12 @@ onMounted(() => fetchData());
   .name {
     font-size: 12px;
   }
+}
+.date-picker {
+  max-width: 200px;
+}
+.q-select {
+  min-width: 200px;
+  height: 40px;
 }
 </style>
