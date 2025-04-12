@@ -15,13 +15,13 @@ const selectedDate = ref(new Date());
 const fetchData = async () => {
   // тут бы получил данные с бэка
   try {
+    console.log("data fetched");
     sessions.value = sessionsList;
   } catch {}
 };
 
 const selectedSessions = ref([]);
 const handleSelection = (session) => {
-  // добавляем / удаляем сессии в выбранные
   const id = selectedSessions.value.findIndex((s) => s.id === session.id);
 
   // кейс с длинным сеансом
