@@ -3,15 +3,16 @@ import { ref, onMounted } from "vue";
 import sessionsList from "src/data/sessions";
 import dayjs from "dayjs";
 import DatePicker from "./DatePicker.vue";
+import SessionModal from "./SessionModal.vue";
 
 const sessions = ref(null);
 const selectRef = ref(null);
 const guestCount = ref("1 человек");
 const options = ["1 человек", "2 человека", "3 человека", "4 человека"];
+const visible = ref(false);
+const selectedDate = ref(new Date());
 
-const fetchData = async (newDate) => {
-  console.log("date changed:", newDate ?? new Date());
-
+const fetchData = async () => {
   // тут бы получил данные с бэка
   try {
     sessions.value = sessionsList;
@@ -41,7 +42,7 @@ const handleSelection = (session) => {
     selectedSessions.value = selectedSessions.value.slice(-1);
   }
 
-  // проверяем, чтобы сеансы были рядом (не больше 30 минут)
+  // сеансы рядом (не больше 30 минут) и не пересекаются
   if (selectedSessions.value.length > 1) {
     const [firstSession, secondSession] = selectedSessions.value;
 
@@ -53,8 +54,11 @@ const handleSelection = (session) => {
     const timeDiff1 = secondStart.diff(firstEnd, "minute");
     const timeDiff2 = firstStart.diff(secondEnd, "minute");
 
-    // если сеансы НЕ рядом
-    if (Math.abs(timeDiff1) > 30 && Math.abs(timeDiff2) > 30) {
+    // проверка на пересечение
+    const isOverlapping =
+      secondStart.isBefore(firstEnd) && firstStart.isBefore(secondEnd);
+
+    if (isOverlapping || timeDiff1 > 30 || timeDiff2 > 30) {
       selectedSessions.value = [];
       selectedSessions.value.push(session);
     }
@@ -80,6 +84,22 @@ const getColumnClass = (session) => {
   else return "col";
 };
 
+const handleDateUpdate = (date) => {
+  selectedDate.value = date;
+  fetchData();
+};
+
+const isWarningShow = ref(false);
+const handleClick = () => {
+  if (!selectedSessions.value.length) {
+    isWarningShow.value = true;
+    return;
+  }
+
+  isWarningShow.value = false;
+  visible.value = true;
+};
+
 onMounted(() => fetchData());
 </script>
 
@@ -97,7 +117,7 @@ onMounted(() => fetchData());
 
     <DatePicker
       class="date-picker"
-      @data-updated="(newDate) => fetchData(newDate)"
+      @data-updated="handleDateUpdate"
     />
   </div>
 
@@ -147,7 +167,33 @@ onMounted(() => fetchData());
         </q-btn>
       </div>
     </div>
+
+    <div class="relative-position">
+      <q-btn
+        color="primary"
+        text-color="white"
+        rounded
+        label="БРОНИРОВАТЬ"
+        class="full-width q-mt-md action-button"
+        @click="handleClick"
+      ></q-btn>
+      <div
+        class="button-warning font-600"
+        v-if="isWarningShow && !selectedSessions.length"
+      >
+        Пожалуйста, выберите сеанс
+      </div>
+    </div>
   </div>
+
+  <SessionModal
+    v-model="visible"
+    :data="{
+      guests: guestCount,
+      date: selectedDate,
+      sessions: selectedSessions,
+    }"
+  ></SessionModal>
 </template>
 
 <style scoped lang="scss">
@@ -157,11 +203,23 @@ onMounted(() => fetchData());
 .session-wrap {
   min-width: 120px;
 }
-.q-btn {
+.q-btn:not(.action-button) {
   border: 2px solid $light;
 }
+.action-button {
+  padding: 10px;
+}
+.button-warning {
+  position: absolute;
+  bottom: -24px;
+  width: 100%;
+  text-align: center;
+  font-size: 12px;
+  color: $negative;
+}
+
 .active {
-  border: 2px solid $primary;
+  border: 2px solid $primary !important;
   background-color: white !important;
 }
 .session-content {
