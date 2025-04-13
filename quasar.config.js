@@ -37,7 +37,7 @@ export default defineConfig((/* ctx */) => {
         node: "node20",
       },
 
-      vueRouterMode: "history", // available values: 'hash', 'history'
+      vueRouterMode: "hash", // available values: 'hash', 'history'
 
       extendViteConf(viteConf) {
         // Отключаем разделение CSS
@@ -49,10 +49,8 @@ export default defineConfig((/* ctx */) => {
         // Настройки Rollup для отключения code splitting
         viteConf.build.rollupOptions = {
           output: {
-            inlineDynamicImports: true, // Инлайнить динамические импорты [[5]]
-            chunkFileNames: "index.[hash].js", // Все чанки будут иметь одно имя
-            entryFileNames: "index.[hash].js", // Входной файл будет всегда "index.js"
-            assetFileNames: "assets/[name].[hash][extname]", // Названия ассетов
+            inlineDynamicImports: true, // Инлайнить динамические импорты
+            entryFileNames: "booking.js", // Входной файл будет всегда "booking.js"
           },
         };
       },
