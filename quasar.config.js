@@ -2,6 +2,7 @@
 // https://v2.quasar.dev/quasar-cli-vite/quasar-config-file
 
 import { defineConfig } from "#q-app/wrappers";
+import cssInjectedByJsPlugin from "vite-plugin-css-injected-by-js";
 
 export default defineConfig((/* ctx */) => {
   return {
@@ -25,9 +26,8 @@ export default defineConfig((/* ctx */) => {
       // 'themify',
       // 'line-awesome',
       // 'roboto-font-latin-ext', // this or either 'roboto-font', NEVER both!
-
-      "roboto-font", // optional, you are not bound to it
-      "material-icons", // optional, you are not bound to it
+      // "roboto-font", // optional, you are not bound to it
+      // "material-icons", // optional, you are not bound to it
     ],
 
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-file#build
@@ -38,6 +38,25 @@ export default defineConfig((/* ctx */) => {
       },
 
       vueRouterMode: "history", // available values: 'hash', 'history'
+
+      extendViteConf(viteConf) {
+        // Отключаем разделение CSS
+        viteConf.build.cssCodeSplit = false;
+
+        // Добавляем плагин для внедрения CSS в JS
+        viteConf.plugins.push(cssInjectedByJsPlugin());
+
+        // Настройки Rollup для отключения code splitting
+        viteConf.build.rollupOptions = {
+          output: {
+            inlineDynamicImports: true, // Инлайнить динамические импорты [[5]]
+            chunkFileNames: "index.[hash].js", // Все чанки будут иметь одно имя
+            entryFileNames: "index.[hash].js", // Входной файл будет всегда "index.js"
+            assetFileNames: "assets/[name].[hash][extname]", // Названия ассетов
+          },
+        };
+      },
+
       // vueRouterBase,
       // vueDevtools,
       // vueOptionsAPI: false,

@@ -154,7 +154,7 @@ onMounted(() => fetchData());
             class="session-content"
             :class="{ 'text-grey': !item.isAvailable }"
           >
-            <div class="time font-700">
+            <div class="time font-600">
               <span v-if="item.type === 'long'">Длительный сеанс</span>
               {{ dayjs(item.startTime).format("HH:mm") }} —
               {{ dayjs(item.endTime).format("HH:mm") }}
